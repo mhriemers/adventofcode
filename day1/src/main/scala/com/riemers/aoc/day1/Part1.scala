@@ -7,12 +7,13 @@ import monix.reactive.Observable
 
 object Part1 extends TaskApp with ObservableHelpers {
 
-  override def run(args: List[String]): Task[ExitCode] =
+  override def run(args: List[String]): Task[ExitCode] = {
+    val file = readFileFromResource("input.txt")
     for {
-      file ← readFileFromResource("input.txt")
       frequency ← countFrequency(file)
       _ ← Task(println(frequency))
     } yield ExitCode.Success
+  }
 
   def countFrequency(strings: Observable[String]): Task[Long] =
     strings.foldLeftL(0l)((b, string) ⇒ b + frequencyToLong(string))

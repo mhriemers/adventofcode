@@ -15,10 +15,9 @@ class Part1Test extends FunSuite with Matchers {
         |#2 @ 3,1: 4x4
         |#3 @ 5,5: 2x2""".stripMargin
 
-    val lines = Observable.fromIterable(input.split(System.lineSeparator()))
+    val claims = parseObservable(Observable.fromIterable(input.split(System.lineSeparator())))
 
     val value = for {
-      claims ← parseObservable(lines)
       board ← constructBoard(1100, 1100)
       long ← func(claims, board)
     } yield long

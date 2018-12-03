@@ -9,13 +9,14 @@ object Part1 extends TaskApp with ObservableHelpers {
 
   type Board = List[List[Long]]
 
-  override def run(args: List[String]): Task[ExitCode] = for {
-    file ← readFileFromResource("input.txt")
-    claims ← parseObservable(file)
-    board ← constructBoard(1100, 1100)
-    long ← func(claims, board)
-    _ ← Task(println(long))
-  } yield ExitCode.Success
+  override def run(args: List[String]): Task[ExitCode] = {
+    val claims = parseObservable(readFileFromResource("input.txt"))
+    for {
+      board ← constructBoard(1100, 1100)
+      long ← func(claims, board)
+      _ ← Task(println(long))
+    } yield ExitCode.Success
+  }
 
   def func(claims: Observable[Claim], board: Board): Task[Long] = {
     claims.flatMap(claimToPoints).foldLeftL(board)(processPoint).flatMap(countSquares)
@@ -33,5 +34,13 @@ object Part1 extends TaskApp with ObservableHelpers {
 
   def constructBoard(width: Long, height: Long): Task[Board] =
     Task.pure(List.fill(width.toInt, height.toInt)(0l))
+
+  def claimToPoints(claim: Claim): Observable[Point] = {
+    Observable.range(claim.left, claim.left + claim.width).flatMap { x ⇒
+      Observable.range(claim.top, claim.top + claim.height).map { y ⇒
+        Point(x, y)
+      }
+    }
+  }
 
 }

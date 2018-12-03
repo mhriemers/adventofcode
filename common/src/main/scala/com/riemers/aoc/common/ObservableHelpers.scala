@@ -7,7 +7,7 @@ import monix.reactive.Observable
 
 trait ObservableHelpers {
 
-  def readFileFromResource(file: String): Task[Observable[String]] = Task {
+  def readFileFromResource(file: String): Observable[String] = {
     Observable.fromLinesReader(
       Task(
         new BufferedReader(
@@ -17,10 +17,6 @@ trait ObservableHelpers {
         )
       )
     )
-  }
-
-  def fileToList(observable: Observable[String]): Task[List[String]] = {
-    observable.toListL
   }
 
 }

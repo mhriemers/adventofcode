@@ -7,8 +7,7 @@ import monix.eval.{Task, TaskApp}
 object Part2 extends TaskApp with ObservableHelpers {
 
   override def run(args: List[String]): Task[ExitCode] = for {
-    file ← readFileFromResource("input.txt")
-    frequencies ← fileToList(file)
+    frequencies ← readFileFromResource("input.txt").toListL
     long ← func(frequencies)
     _ ← Task(println(long))
   } yield ExitCode.Success

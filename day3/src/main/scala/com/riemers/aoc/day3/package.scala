@@ -11,7 +11,7 @@ package object day3 {
 
   val regex: Regex = "#(\\d+) @ (\\d+),(\\d+): (\\d+)x(\\d+)".r
 
-  def parseObservable(observable: Observable[String]): Task[Observable[Claim]] = Task {
+  def parseObservable(observable: Observable[String]): Observable[Claim] = {
     observable.mapEval(string ⇒ parse(string).value).filter(_.isDefined).map(_.get)
   }
 
@@ -28,15 +28,32 @@ package object day3 {
     }
   })
 
-  def claimToPoints(claim: Claim): Observable[Point] = {
-    Observable.range(claim.left, claim.left + claim.width).flatMap { x ⇒
-      Observable.range(claim.top, claim.top + claim.height).map { y ⇒
-        Point(x, y)
-      }
+  case class Claim(id: Long, left: Long, top: Long, width: Long, height: Long) {
+
+    def overlap(c: Claim): Boolean = !nonOverlap(c)
+
+    def nonOverlap(c: Claim): Boolean = {
+      val (x1, y1) = (left, top)
+      val (x2, y2) = (left + (width - 1), top + (height - 1))
+      val (x3, y3) = (c.left, c.top)
+      val (x4, y4) = (c.left + (c.width - 1), c.top + (c.height - 1))
+
+      x1 > x4 || x3 > x2 || y1 > y4 || y3 > y2
+    }
+
+    def overlapping(c: Claim): Option[Long] = {
+      val (x1, y1) = (left, top)
+      val (x2, y2) = (left + (width - 1), top + (height - 1))
+      val (x3, y3) = (c.left, c.top)
+      val (x4, y4) = (c.left + (c.width - 1), c.top + (c.height - 1))
+
+      if (!(x1 > x4 || x3 > x2 || y1 > y4 || y3 > y2)) {
+        val x = Math.min(x2, x4) - Math.max(x1, x3) + 1
+        val y = Math.min(y2, y4) - Math.max(y1, y3) + 1
+        Some(x * y)
+      } else None
     }
   }
-
-  case class Claim(id: Long, left: Long, top: Long, width: Long, height: Long)
 
   case class Point(x: Long, y: Long)
 
