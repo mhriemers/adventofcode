@@ -17,7 +17,7 @@ object Part2 extends TaskApp with ObservableHelpers {
   def func(list: List[String]): OptionT[Task, String] = {
     if (list.isEmpty) OptionT.none
     else OptionT(
-      Task.sequence(list.drop(1).map { str ⇒
+      Task.traverse(list.drop(1))(str ⇒ {
         intersection(str, list.head)
       }).map(_.find(_.length + 1 == list.head.length))
     ).orElse(func(list.drop(1)))
