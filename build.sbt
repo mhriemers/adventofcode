@@ -28,3 +28,7 @@ lazy val day2 = (project in file("day2"))
 lazy val day3 = (project in file("day3"))
   .settings(commonSettings)
   .dependsOn(common)
+
+lazy val day4 = (project in file("day4"))
+  .settings(commonSettings)
+  .dependsOn(common)

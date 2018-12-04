@@ -5,6 +5,7 @@ import com.riemers.aoc.common.ObservableHelpers
 import monix.eval.{Task, TaskApp}
 import monix.reactive.Observable
 
+// TODO: Clean up
 object Part1 extends TaskApp with ObservableHelpers {
 
   type Board = List[List[Long]]
