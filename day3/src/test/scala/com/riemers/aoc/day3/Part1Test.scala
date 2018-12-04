@@ -1,8 +1,7 @@
 package com.riemers.aoc.day3
 
-import com.riemers.aoc.day3.Part1.{constructBoard, func}
+import com.riemers.aoc.day3.Part1.{func, readFileFromResource}
 import monix.execution.schedulers.TestScheduler
-import monix.reactive.Observable
 import org.scalatest.{FunSuite, Matchers}
 
 class Part1Test extends FunSuite with Matchers {
@@ -15,14 +14,9 @@ class Part1Test extends FunSuite with Matchers {
         |#2 @ 3,1: 4x4
         |#3 @ 5,5: 2x2""".stripMargin
 
-    val claims = parseObservable(Observable.fromIterable(input.split(System.lineSeparator())))
-
-    val value = for {
-      board ← constructBoard(1100, 1100)
-      long ← func(claims, board)
-    } yield long
-
-    val l = value.runSyncUnsafe()
+    val l = (for {
+      claims ← parseObservable(readFileFromResource("input.txt")).toListL
+    } yield func(claimsToPoints(claims))).runSyncUnsafe()
 
     l shouldBe 4
   }

@@ -12,14 +12,8 @@ class Part2Test extends FunSuite with Matchers {
     val c2 = Claim(2, 3, 1, 4, 4)
     val c3 = Claim(3, 5, 5, 2, 2)
 
-    c1.nonOverlap(c2) shouldBe false
-    c1.nonOverlap(c3) shouldBe true
-    c2.nonOverlap(c1) shouldBe false
-    c2.nonOverlap(c3) shouldBe true
-    c3.nonOverlap(c1) shouldBe true
-    c3.nonOverlap(c2) shouldBe true
-
-    val option = Part2.func(c1 :: c2 :: c3 :: Nil).runSyncUnsafe()
+    val claims = c1 :: c2 :: c3 :: Nil
+    val option = Part2.func(claimsToPoints(claims), claims).runSyncUnsafe()
     option shouldBe Some(c3)
   }
 
