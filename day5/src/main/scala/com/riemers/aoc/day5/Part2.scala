@@ -2,7 +2,7 @@ package com.riemers.aoc.day5
 
 import cats.effect.ExitCode
 import cats.instances.int._
-import cats.{Applicative, Functor, FunctorFilter, SemigroupK}
+import cats.{Alternative, Applicative, Functor, FunctorFilter, SemigroupK}
 import monix.eval.{Task, TaskApp}
 import monix.reactive.Observable
 
@@ -31,7 +31,7 @@ object Part2 extends TaskApp {
       .flatMap(l ⇒ Task(println(l)))
       .map(_ ⇒ ExitCode.Success)
 
-  def permutations[F[_] : Applicative : FunctorFilter : SemigroupK](chars: F[Char]): F[F[Char]] = {
+  def permutations[F[_] : Alternative : FunctorFilter](chars: F[Char]): F[F[Char]] = {
     Range.inclusive('a', 'z').map(_.toChar)
       .map { c ⇒
         FunctorFilter[F].filter(chars)(Character.toLowerCase _ andThen (_ != c))
