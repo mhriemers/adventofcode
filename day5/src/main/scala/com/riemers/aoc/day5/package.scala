@@ -2,8 +2,9 @@ package com.riemers.aoc
 
 import java.io.{BufferedReader, InputStreamReader}
 
+import cats.Eval
 import cats.instances.list._
-import cats.{Eval, Foldable}
+import cats.syntax.foldable._
 import monix.eval.Task
 import monix.reactive.Observable
 
@@ -24,7 +25,7 @@ package object day5 {
   }
 
   def collapse(chars: List[Char]): Eval[List[Char]] = {
-    Foldable[List].foldRight(chars, Eval.now(List.empty[Char])) {
+    chars.foldr(Eval.now(List.empty[Char])) {
       case (char, state) ⇒ state.map {
         case l@Nil ⇒ char :: l
         case l@head :: tail ⇒ if (Math.abs(char - head) == CASE_DIFFERENCE) tail else char :: l

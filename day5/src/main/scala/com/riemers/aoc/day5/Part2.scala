@@ -2,23 +2,15 @@ package com.riemers.aoc.day5
 
 import cats.effect.ExitCode
 import cats.instances.int._
-import cats.{Alternative, Applicative, Functor, FunctorFilter, SemigroupK}
+import cats.syntax.functorFilter._
+import cats.{Alternative, FunctorFilter}
+import com.riemers.aoc.common.ObservableHelpers
 import monix.eval.{Task, TaskApp}
 import monix.reactive.Observable
 
 import scala.language.higherKinds
 
-object Part2 extends TaskApp {
-
-  /**
-    * Temporary polyfill
-    */
-  implicit val observableFunctorFilter: FunctorFilter[Observable] = new FunctorFilter[Observable] {
-    override def functor: Functor[Observable] = Observable.catsInstances
-
-    override def mapFilter[A, B](fa: Observable[A])(f: A ⇒ Option[B]): Observable[B] =
-      fa.collect(Function.unlift(f))
-  }
+object Part2 extends TaskApp with ObservableHelpers {
 
   override def run(args: List[String]): Task[ExitCode] =
     permutations[Observable](readFileFromResourceAsChars("input.txt")
@@ -31,12 +23,12 @@ object Part2 extends TaskApp {
       .flatMap(l ⇒ Task(println(l)))
       .map(_ ⇒ ExitCode.Success)
 
-  def permutations[F[_] : Alternative : FunctorFilter](chars: F[Char]): F[F[Char]] = {
+  def permutations[F[_] : FunctorFilter](chars: F[Char])(implicit A: Alternative[F]): F[F[Char]] = {
     Range.inclusive('a', 'z').map(_.toChar)
       .map { c ⇒
-        FunctorFilter[F].filter(chars)(Character.toLowerCase _ andThen (_ != c))
+        chars.filter(Character.toLowerCase _ andThen (_ != c))
       }
-      .map(Applicative[F].pure)
-      .reduceLeft(SemigroupK[F].combineK)
+      .map(A.pure)
+      .reduceLeft(A.combineK)
   }
 }

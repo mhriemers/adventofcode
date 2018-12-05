@@ -16,14 +16,14 @@ object Part2 extends TaskApp with ObservableHelpers {
     _ ← Task(println(long))
   } yield ExitCode.Success
 
-  def func[F[_] : Defer : Applicative](strings: List[String]): F[Long] = {
+  def func[F[_]](strings: List[String])(implicit A: Applicative[F], D: Defer[F]): F[Long] = {
     def rec(curr: List[String], freqs: Nel[Long] = Nel.one(0)): F[Long] = {
       (curr, freqs) match {
-        case (Nil, _) ⇒ Defer[F].defer(rec(strings, freqs))
+        case (Nil, _) ⇒ D.defer(rec(strings, freqs))
         case (head :: tail, Nel(freq, _)) ⇒
           val l = freq + frequencyToLong(head)
-          if (freqs.exists(_ == l)) Applicative[F].pure(l)
-          else Defer[F].defer(rec(tail, l :: freqs))
+          if (freqs.exists(_ == l)) A.pure(l)
+          else D.defer(rec(tail, l :: freqs))
       }
     }
 

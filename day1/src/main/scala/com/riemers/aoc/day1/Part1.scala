@@ -5,6 +5,8 @@ import com.riemers.aoc.common.ObservableHelpers
 import monix.eval.{Task, TaskApp}
 import monix.reactive.Observable
 
+import scala.language.higherKinds
+
 object Part1 extends TaskApp with ObservableHelpers {
 
   override def run(args: List[String]): Task[ExitCode] = {
@@ -15,7 +17,8 @@ object Part1 extends TaskApp with ObservableHelpers {
     } yield ExitCode.Success
   }
 
-  def countFrequency(strings: Observable[String]): Task[Long] =
+  def countFrequency(strings: Observable[String]): Task[Long] = {
     strings.foldLeftL(0l)((b, string) ⇒ b + frequencyToLong(string))
+  }
 
 }
