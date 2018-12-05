@@ -3,7 +3,7 @@ package com.riemers.aoc.day1
 import cats.data.{NonEmptyList ⇒ Nel}
 import cats.effect.ExitCode
 import cats.{Applicative, Defer}
-import com.riemers.aoc.common.ObservableHelpers
+import com.riemers.aoc.common.{ObservableHelpers, putStrLn}
 import monix.eval.{Task, TaskApp}
 
 import scala.language.higherKinds
@@ -13,7 +13,7 @@ object Part2 extends TaskApp with ObservableHelpers {
   override def run(args: List[String]): Task[ExitCode] = for {
     frequencies ← readFileFromResource("input.txt").toListL
     long ← func(frequencies)
-    _ ← Task(println(long))
+    _ ← putStrLn(long)
   } yield ExitCode.Success
 
   def func[F[_]](strings: List[String])(implicit A: Applicative[F], D: Defer[F]): F[Long] = {

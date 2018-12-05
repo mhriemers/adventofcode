@@ -1,7 +1,7 @@
 package com.riemers.aoc.day1
 
 import cats.effect._
-import com.riemers.aoc.common.ObservableHelpers
+import com.riemers.aoc.common.{FoldableM, ObservableHelpers, putStrLn}
 import monix.eval.{Task, TaskApp}
 import monix.reactive.Observable
 
@@ -12,13 +12,13 @@ object Part1 extends TaskApp with ObservableHelpers {
   override def run(args: List[String]): Task[ExitCode] = {
     val file = readFileFromResource("input.txt")
     for {
-      frequency ← countFrequency(file)
-      _ ← Task(println(frequency))
+      frequency ← countFrequency[Observable, Task](file)
+      _ ← putStrLn(frequency)
     } yield ExitCode.Success
   }
 
-  def countFrequency(strings: Observable[String]): Task[Long] = {
-    strings.foldLeftL(0l)((b, string) ⇒ b + frequencyToLong(string))
+  def countFrequency[F[_], G[_]](strings: F[String])(implicit F: FoldableM[F, G]): G[Long] = {
+    F.foldLeftM(strings, 0l)((b, string) ⇒ b + frequencyToLong(string))
   }
 
 }

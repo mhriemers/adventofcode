@@ -1,6 +1,7 @@
 package com.riemers.aoc.day5
 
 import cats.effect.ExitCode
+import com.riemers.aoc.common.putStrLn
 import monix.eval.{Task, TaskApp}
 import monix.reactive.Observable
 
@@ -10,6 +11,6 @@ object Part1 extends TaskApp {
       .flatMap(array ⇒ Observable(array: _*))
       .toListL
     string ← Task.fromEval(collapse(chars))
-    _ ← Task(println(string.length))
+    _ ← putStrLn(string.length)
   } yield ExitCode.Success
 }

@@ -3,7 +3,7 @@ package com.riemers.aoc.day4
 import cats.TraverseFilter
 import cats.effect.ExitCode
 import cats.instances.list._
-import com.riemers.aoc.common.ObservableHelpers
+import com.riemers.aoc.common.{ObservableHelpers, putStrLn}
 import monix.eval.{Task, TaskApp}
 
 object Part1 extends TaskApp with ObservableHelpers {
@@ -14,7 +14,7 @@ object Part1 extends TaskApp with ObservableHelpers {
     sorted = records.sortBy(_.date)
     map ← Task.fromEval(countMinutesAsleep(sorted))
     l = func(map)
-    _ ← Task(println(l))
+    _ ← putStrLn(l)
   } yield ExitCode.Success
 
   def func(map: Map[(Int, Int), Int]): Int = {

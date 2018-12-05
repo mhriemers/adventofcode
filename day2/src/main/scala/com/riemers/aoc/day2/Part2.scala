@@ -7,7 +7,7 @@ import cats.instances.option._
 import cats.syntax.functor._
 import cats.syntax.functorFilter._
 import cats.{Alternative, Monad}
-import com.riemers.aoc.common.ObservableHelpers
+import com.riemers.aoc.common.{ObservableHelpers, putStrLn}
 import monix.eval.{Task, TaskApp}
 
 import scala.language.higherKinds
@@ -17,7 +17,7 @@ object Part2 extends TaskApp with ObservableHelpers {
   override def run(args: List[String]): Task[ExitCode] = for {
     list ← readFileFromResource("input.txt").toListL
     opt ← func[Task](list).value
-    _ ← Task(println(opt))
+    _ ← putStrLn(opt)
   } yield ExitCode.Success
 
   def func[F[_]](list: List[String])(implicit M: Monad[F]): OptionT[F, String] = {

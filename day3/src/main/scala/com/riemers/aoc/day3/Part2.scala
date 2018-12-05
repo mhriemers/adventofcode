@@ -1,14 +1,14 @@
 package com.riemers.aoc.day3
 
 import cats.effect.ExitCode
-import com.riemers.aoc.common.ObservableHelpers
+import com.riemers.aoc.common.{ObservableHelpers, putStrLn}
 import monix.eval.{Task, TaskApp}
 
 object Part2 extends TaskApp with ObservableHelpers {
   override def run(args: List[String]): Task[ExitCode] = for {
     claims ← parseObservable(readFileFromResource("input.txt")).toListL
     c = func(claims)
-    _ ← Task(println(c))
+    _ ← putStrLn(c)
   } yield ExitCode.Success
 
   /**

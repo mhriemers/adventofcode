@@ -1,7 +1,7 @@
 package com.riemers.aoc.day3
 
 import cats.effect.ExitCode
-import com.riemers.aoc.common.ObservableHelpers
+import com.riemers.aoc.common.{ObservableHelpers, putStrLn}
 import monix.eval.{Task, TaskApp}
 
 object Part1 extends TaskApp with ObservableHelpers {
@@ -11,7 +11,7 @@ object Part1 extends TaskApp with ObservableHelpers {
       claims ← parseObservable(readFileFromResource("input.txt")).toListL
       points = claimsToPoints(claims)
       l = func(points)
-      _ ← Task(println(l))
+      _ ← putStrLn(l)
     } yield ExitCode.Success
   }
 
