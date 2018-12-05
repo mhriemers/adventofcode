@@ -1,16 +1,13 @@
 package com.riemers.aoc.day5
 
-import monix.execution.schedulers.TestScheduler
-import monix.reactive.Observable
+import cats.instances.list._
 import org.scalatest.{FunSuite, Matchers}
 
 class Part2Test extends FunSuite with Matchers {
 
-  implicit val ctx: TestScheduler = TestScheduler()
-
   test("it should pass the basic test case") {
-    val input = Observable("dabAcCaCBAcCcaDA".toCharArray: _*)
-    val list = Part2.permutations(input).mapEval(_.toListL).toListL.runSyncUnsafe()
+    val input = "dabAcCaCBAcCcaDA".toList
+    val list: List[List[Char]] = Part2.permutations[List](input)
 
     list should contain("dbcCCBcCcD".toCharArray.toList)
     list should contain("daAcCaCAcCcaDA".toCharArray.toList)
