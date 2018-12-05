@@ -1,12 +1,10 @@
 package com.riemers.aoc.day3
 
-import com.riemers.aoc.day3.Part1.{func, readFileFromResource}
-import monix.execution.schedulers.TestScheduler
+import cats.FunctorFilter
+import cats.instances.list._
 import org.scalatest.{FunSuite, Matchers}
 
 class Part1Test extends FunSuite with Matchers {
-
-  implicit val ec: TestScheduler = TestScheduler()
 
   test("it passes the test case") {
     val input =
@@ -14,9 +12,8 @@ class Part1Test extends FunSuite with Matchers {
         |#2 @ 3,1: 4x4
         |#3 @ 5,5: 2x2""".stripMargin
 
-    val l = (for {
-      claims ← parseObservable(readFileFromResource("input.txt")).toListL
-    } yield func(claimsToPoints(claims))).runSyncUnsafe()
+    val claims = FunctorFilter[List].mapFilter(input.split(System.lineSeparator()).toList)(parse)
+    val l = Part1.func(claimsToPoints(claims))
 
     l shouldBe 4
   }

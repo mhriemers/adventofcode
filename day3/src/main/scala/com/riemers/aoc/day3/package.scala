@@ -1,7 +1,5 @@
 package com.riemers.aoc
 
-import cats.data.OptionT
-import monix.eval.Task
 import monix.reactive.Observable
 
 import scala.util.Try
@@ -20,10 +18,10 @@ package object day3 {
   }
 
   def parseObservable(observable: Observable[String]): Observable[Claim] = {
-    observable.mapEval(string ⇒ parse(string).value).filter(_.isDefined).map(_.get)
+    observable.map(string ⇒ parse(string)).filter(_.isDefined).map(_.get)
   }
 
-  def parse(string: String): OptionT[Task, Claim] = OptionT(Task {
+  def parse(string: String): Option[Claim] = {
     string match {
       case regex(sid, sleft, stop, swidth, sheight) ⇒ (for {
         id ← Try(sid.toLong)
@@ -34,7 +32,7 @@ package object day3 {
       } yield Claim(id, left, top, width, height)).toOption
       case _ ⇒ None
     }
-  })
+  }
 
   case class Claim(id: Long, left: Long, top: Long, width: Long, height: Long)
 

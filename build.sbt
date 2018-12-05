@@ -6,9 +6,13 @@ lazy val commonSettings = Seq(
   libraryDependencies ++= Seq(
     "org.typelevel" %% "cats-core" % "1.4.0",
     "org.typelevel" %% "cats-effect" % "1.0.0",
+    "org.typelevel" %% "cats-mtl-core" % "0.4.0",
+    "com.github.mpilquist" %% "simulacrum" % "0.14.0",
     "io.monix" %% "monix" % "3.0.0-RC2",
     "org.scalatest" %% "scalatest" % "3.0.5" % "test"
-  )
+  ),
+  addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.9.8"),
+  addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
 )
 
 lazy val adventofcode = (project in file("."))

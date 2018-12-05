@@ -2,7 +2,11 @@ package com.riemers.aoc
 
 import java.time.LocalDateTime
 
-import monix.eval.Task
+import cats.instances.int._
+import cats.instances.list._
+import cats.instances.map._
+import cats.kernel.Semigroup
+import cats.{Eval, Foldable}
 
 import scala.util.Try
 import scala.util.matching.Regex
@@ -14,25 +18,33 @@ package object day4 {
   val fallsAsleep: Regex = "falls asleep".r
   val wakesUp: Regex = "wakes up".r
 
-  implicit val localDateTimeOrdering: Ordering[LocalDateTime] = (x: LocalDateTime, y: LocalDateTime) => x.compareTo(y)
+  // Inverted for foldRight
+  implicit val localDateTimeOrdering: Ordering[LocalDateTime] = (x: LocalDateTime, y: LocalDateTime) => y.compareTo(x)
 
-  def countMinutesAsleep(records: List[CrudeRecord]): Task[Map[(Int, Int), Int]] = Task {
+  def countMinutesAsleep(records: List[CrudeRecord]): Eval[Map[(Int, Int), Int]] = {
     // Unorthodox? I think so
     case class State(map: Map[(Int, Int), Int] = Map.empty, current: Int = 0, start: Int = 0)
 
-    records.foldLeft(State()) {
-      case (state, record) ⇒
+    Foldable[List].foldRight(records, Eval.now(State())) {
+      case (record, estate) ⇒
         record.text match {
-          case shiftBegin(id) ⇒ state.copy(current = id.toInt)
-          case fallsAsleep() ⇒ state.copy(start = record.date.getMinute)
-          case wakesUp() ⇒ state.copy(map = (state.start until record.date.getMinute).foldLeft(state.map) {
-            case (map, minute) ⇒ map updated((state.current, minute), map.getOrElse((state.current, minute), 0) + 1)
-          }, start = 0)
+          case shiftBegin(id) ⇒
+            estate.map(_.copy(current = id.toInt))
+          case fallsAsleep() ⇒
+            estate.map(_.copy(start = record.date.getMinute))
+          case wakesUp() ⇒
+            estate.flatMap { state ⇒
+              Foldable[List].foldRight((state.start until record.date.getMinute).toList, Eval.now(state.map)) {
+                case (minute, emap) ⇒ emap.map { map ⇒
+                  Semigroup[Map[(Int, Int), Int]].combine(map, Map((state.current → minute) → 1))
+                }
+              }.map(map ⇒ state.copy(map = map))
+            }
         }
-    }.map
+    }.map(_.map)
   }
 
-  def parseCrudeRecord(string: String): Task[Option[CrudeRecord]] = Task {
+  def parseCrudeRecord(string: String): Option[CrudeRecord] = {
     string match {
       case crude(syear, smonth, sday, shour, sminute, text) ⇒
         for {
