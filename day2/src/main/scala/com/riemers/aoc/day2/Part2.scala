@@ -2,8 +2,8 @@ package com.riemers.aoc.day2
 
 import cats.data.OptionT
 import cats.effect.ExitCode
-import cats.instances.list._
-import cats.{Applicative, Monad, TraverseFilter}
+import cats.implicits._
+import cats.{Alternative, Applicative, Monad, TraverseFilter}
 import com.riemers.aoc.common.ObservableHelpers
 import monix.eval.{Task, TaskApp}
 
@@ -34,7 +34,7 @@ object Part2 extends TaskApp with ObservableHelpers {
   def intersection(s1: String, s2: String): String = {
     val tuples: List[(Char, Char)] = (s1 zip s2).toList
     TraverseFilter[List].mapFilter(tuples) {
-      case (c1, c2) ⇒ if (c1 == c2) Some(c1) else None
+      case (c1, c2) ⇒ Alternative[Option].guard(c1 == c2).as(c1)
     }.mkString
   }
 
