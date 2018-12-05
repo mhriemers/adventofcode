@@ -1,27 +1,25 @@
 package com.riemers.aoc.day5
 
 import cats.effect.ExitCode
+import cats.instances.int._
 import monix.eval.{Task, TaskApp}
 import monix.reactive.Observable
 
 object Part2 extends TaskApp {
-  override def run(args: List[String]): Task[ExitCode] = for {
-    chars ← readFileFromResourceAsChars("input.txt")
+  override def run(args: List[String]): Task[ExitCode] =
+    permutations(readFileFromResourceAsChars("input.txt")
       .flatMap(array ⇒ Observable(array: _*))
-      .toListL
-    perms = permutations(chars)
-    tasks ← Task.traverse(perms.map(collapse))(Task.fromEval)
-    length = tasks.map(_.length).min
-    _ ← Task(println(length))
-  } yield ExitCode.Success
+    )
+      .mapEval(_.toListL)
+      .mapEvalF(collapse)
+      .map(_.length)
+      .minL
+      .flatMap(l ⇒ Task(println(l)))
+      .map(_ ⇒ ExitCode.Success)
 
-  def permutations(chars: List[Char]): List[List[Char]] = {
-    Range.inclusive('a', 'z').map(_.toChar).map { c1 ⇒
-      filterChar(chars, c1)
-    }.toList
-  }
-
-  def filterChar(chars: List[Char], c1: Char): List[Char] = {
-    chars.filterNot(c2 ⇒ c1 == Character.toLowerCase(c2))
+  def permutations(chars: Observable[Char]): Observable[Observable[Char]] = {
+    Observable.range('a', 'z').map(_.toChar).map { c1 ⇒
+      chars.filter(Character.toLowerCase _ andThen (_ != c1))
+    }
   }
 }
