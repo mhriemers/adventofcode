@@ -1,7 +1,7 @@
 package com.riemers.aoc.common
 
 import cats.{Applicative, Foldable, Id}
-import monix.eval.Task
+import monix.eval.TaskLift
 import monix.reactive.Observable
 
 import scala.language.higherKinds
@@ -16,9 +16,9 @@ object FoldableM extends FoldableMInstances0 {
 
   def apply[F[_], G[_]](implicit instance: FoldableM[F, G]): FoldableM[F, G] = instance
 
-  implicit val foldableMObservableTask: FoldableM[Observable, Task] = new FoldableM[Observable, Task] {
-    override def foldLeftM[A, B](fa: Observable[A], z: B)(f: (B, A) ⇒ B): Task[B] =
-      fa.foldLeftL(z)(f)
+  implicit def foldableMObservableTaskLike[G[_] : TaskLift]: FoldableM[Observable, G] = new FoldableM[Observable, G] {
+    override def foldLeftM[A, B](fa: Observable[A], z: B)(f: (B, A) ⇒ B): G[B] =
+      fa.foldLeftL(z)(f).to[G]
   }
 
   implicit val foldableMObservable: FoldableM[Observable, Observable] = new FoldableM[Observable, Observable] {

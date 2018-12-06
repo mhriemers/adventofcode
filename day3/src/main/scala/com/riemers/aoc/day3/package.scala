@@ -1,6 +1,7 @@
 package com.riemers.aoc
 
 import cats.syntax.flatMap._
+import cats.syntax.functor._
 import cats.syntax.functorFilter._
 import cats.{FlatMap, FunctorFilter}
 import com.riemers.aoc.common.FromRange
