@@ -1,7 +1,11 @@
 package com.riemers.aoc
 
-import monix.reactive.Observable
+import cats.syntax.flatMap._
+import cats.syntax.functorFilter._
+import cats.{FlatMap, FunctorFilter}
+import com.riemers.aoc.common.FromRange
 
+import scala.language.higherKinds
 import scala.util.Try
 import scala.util.matching.Regex
 
@@ -9,16 +13,16 @@ package object day3 {
 
   val regex: Regex = "#(\\d+) @ (\\d+),(\\d+): (\\d+)x(\\d+)".r
 
-  def claimsToPoints(claims: List[Claim]): List[Point] = {
+  def claimsToSquares[F[_] : FlatMap](claims: F[Claim])(implicit R: FromRange[F]): F[Square] = {
     for {
       claim ← claims
-      x ← claim.left until claim.left + claim.width
-      y ← claim.top until claim.top + claim.height
-    } yield Point(claim.id, x, y)
+      x ← R.range(claim.left, claim.left + claim.width)
+      y ← R.range(claim.top, claim.top + claim.height)
+    } yield Square(claim, x, y)
   }
 
-  def parseObservable(observable: Observable[String]): Observable[Claim] = {
-    observable.map(string ⇒ parse(string)).filter(_.isDefined).map(_.get)
+  def parseCollection[F[_] : FunctorFilter](strings: F[String]): F[Claim] = {
+    strings.mapFilter(parse)
   }
 
   def parse(string: String): Option[Claim] = {
@@ -36,6 +40,6 @@ package object day3 {
 
   case class Claim(id: Long, left: Long, top: Long, width: Long, height: Long)
 
-  case class Point(id: Long, x: Long, y: Long)
+  case class Square(claim: Claim, x: Long, y: Long)
 
 }

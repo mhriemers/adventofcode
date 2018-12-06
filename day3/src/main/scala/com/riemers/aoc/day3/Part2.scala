@@ -1,29 +1,32 @@
 package com.riemers.aoc.day3
 
 import cats.effect.ExitCode
+import cats.instances.list._
 import com.riemers.aoc.common.{ObservableHelpers, putStrLn}
 import monix.eval.{Task, TaskApp}
+import monix.reactive.Observable
+
+import scala.language.postfixOps
 
 object Part2 extends TaskApp with ObservableHelpers {
   override def run(args: List[String]): Task[ExitCode] = for {
-    claims ← parseObservable(readFileFromResource("input.txt")).toListL
+    claims ← parseCollection[Observable](readFileFromResource("input.txt")).toListL
     c = func(claims)
     _ ← putStrLn(c)
   } yield ExitCode.Success
 
-  /**
-    * TODO: Rewrite to be more efficient
-    *
-    * @param claims List of claims
-    * @return
-    */
   def func(claims: List[Claim]): Option[Long] = {
-    claimsToPoints(claims).groupBy(p ⇒ (p.x, p.y)).filter {
-      case ((_, _), list) ⇒ list.lengthCompare(1) == 0
-    }.values.flatten.groupBy(_.id).find {
-      case (id, p) ⇒
-        val value = claims.find(_.id == id).get
-        p.size == value.width * value.height
-    }.map(_._1)
+    claimsToSquares(claims)
+      .groupBy(s ⇒ s.x → s.y)
+      .values
+      .filter(_.lengthCompare(1) == 0)
+      .flatten
+      .groupBy(_.claim)
+      .find {
+        case (Claim(_, _, _, width, height), squares) ⇒ squares.size == width * height
+      }
+      .map {
+        case (Claim(id, _, _, _, _), _) ⇒ id
+      }
   }
 }

@@ -13,7 +13,7 @@ class Part1Test extends FunSuite with Matchers {
         |#3 @ 5,5: 2x2""".stripMargin
 
     val claims = FunctorFilter[List].mapFilter(input.split(System.lineSeparator()).toList)(parse)
-    val l = Part1.func(claimsToPoints(claims))
+    val l = Part1.func(claimsToSquares(claims))
 
     l shouldBe 4
   }
