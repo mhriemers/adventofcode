@@ -1,40 +1,39 @@
 package com.riemers.aoc.common
 
-import java.io.{InputStream, InputStreamReader}
+import java.io.{BufferedReader, InputStream, InputStreamReader}
 
-import cats.Functor
-import cats.effect.Effect
-import cats.syntax.functor._
-import monix.eval.TaskLike
+import cats.effect.IO
+import monix.eval.Task
 import monix.reactive.Observable
+import simulacrum.typeclass
 
 import scala.collection.generic.CanBuildFrom
 import scala.language.higherKinds
 
-trait FromInputStream[F[_], G[_]] {
+@typeclass trait FromInputStream[F[_]] {
 
-  def fromInputStream(inputStream: F[InputStream]): G[Byte]
+  def fromInputStream(inputStream: IO[InputStream]): F[String]
 
 }
 
 object FromInputStream {
 
-  def apply[F[_], G[_]](implicit instance: FromInputStream[F, G]): FromInputStream[F, G] = instance
-
-  implicit def inputStreamObservable[G[_] : Functor](implicit TL: TaskLike[G]): FromInputStream[G, Observable] =
-    (inputStream: G[InputStream]) => {
-      val task = TaskLike[G].toTask(inputStream.map(s ⇒ new InputStreamReader(s)))
-      Observable.fromCharsReader(task).flatMap(array ⇒ Observable(array: _*)).map(_.toByte)
+  implicit val inputStreamObservable: FromInputStream[Observable] =
+    (inputStream: IO[InputStream]) => {
+      val task = Task.fromIO(inputStream.map(s ⇒ new BufferedReader(new InputStreamReader(s))))
+      Observable.fromLinesReader(task)
     }
 
-  abstract class StreamBased[F[_] : Functor, G[_]](implicit cbf: CanBuildFrom[Nothing, Byte, G[Byte]])
-    extends FromInputStream[F, λ[A => F[G[A]]]] {
-    override def fromInputStream(inputStream: F[InputStream]): F[G[Byte]] =
-      inputStream.map(is ⇒ Stream.continually(is.read).takeWhile(_ != -1).map(_.toByte).to[G])
+  abstract class StreamBased[F[_]](implicit cbf: CanBuildFrom[Nothing, String, F[String]])
+    extends FromInputStream[λ[A => IO[F[A]]]] {
+    override def fromInputStream(inputStream: IO[InputStream]): IO[F[String]] =
+      inputStream
+        .map(is ⇒ new BufferedReader(new InputStreamReader(is)))
+        .map(br ⇒ Stream.continually(br.readLine()).takeWhile(_ != null).to[F])
   }
 
-  implicit def inputStreamList[F[_] : Effect]: FromInputStream[F, λ[A => F[List[A]]]] = new StreamBased[F, List]() {}
+  implicit def inputStreamList: FromInputStream[λ[A => IO[List[A]]]] = new StreamBased[List]() {}
 
-  implicit def inputStreamVector[F[_] : Effect]: FromInputStream[F, λ[A => F[Vector[A]]]] = new StreamBased[F, Vector]() {}
+  implicit def inputStreamVector: FromInputStream[λ[A => IO[Vector[A]]]] = new StreamBased[Vector]() {}
 
 }
