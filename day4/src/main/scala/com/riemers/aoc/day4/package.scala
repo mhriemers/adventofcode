@@ -23,10 +23,9 @@ package object day4 {
   implicit val localDateTimeOrdering: Ordering[LocalDateTime] = (x: LocalDateTime, y: LocalDateTime) => y.compareTo(x)
 
   def countMinutesAsleep(records: List[CrudeRecord]): Eval[Map[(Int, Int), Int]] = {
-    // Unorthodox? I think so
-    case class State(map: Map[(Int, Int), Int] = Map.empty, current: Int = 0, start: Int = 0)
+    case class State(map: Map[(Int, Int), Int], current: Int, start: Int)
 
-    records.foldr(Eval.now(State())) {
+    records.foldr(Eval.now(State(Map.empty, 0, 0))) {
       case (record, estate) ⇒
         record.text match {
           case shiftBegin(id) ⇒

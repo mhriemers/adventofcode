@@ -2,8 +2,9 @@ package com.riemers.aoc.day1
 
 import cats.data.{NonEmptyList ⇒ Nel}
 import cats.effect.ExitCode
+import cats.instances.long._
 import cats.{Applicative, Defer}
-import com.riemers.aoc.common.{ObservableHelpers, putStrLn}
+import com.riemers.aoc.common.{ObservableHelpers, console}
 import monix.eval.{Task, TaskApp}
 
 import scala.language.higherKinds
@@ -13,11 +14,11 @@ object Part2 extends TaskApp with ObservableHelpers {
   override def run(args: List[String]): Task[ExitCode] = for {
     frequencies ← readFileFromResource("input.txt").toListL
     long ← func(frequencies)
-    _ ← putStrLn(long)
+    _ ← console.putStrLn(long)
   } yield ExitCode.Success
 
   def func[F[_]](strings: List[String])(implicit A: Applicative[F], D: Defer[F]): F[Long] = {
-    def rec(curr: List[String], freqs: Nel[Long] = Nel.one(0)): F[Long] = {
+    def rec(curr: List[String], freqs: Nel[Long]): F[Long] = {
       (curr, freqs) match {
         case (Nil, _) ⇒ D.defer(rec(strings, freqs))
         case (head :: tail, Nel(freq, _)) ⇒
@@ -27,7 +28,7 @@ object Part2 extends TaskApp with ObservableHelpers {
       }
     }
 
-    rec(strings)
+    rec(strings, Nel.one(0))
   }
 
 }

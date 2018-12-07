@@ -2,8 +2,10 @@ package com.riemers.aoc.day4
 
 import cats.TraverseFilter
 import cats.effect.ExitCode
+import cats.instances.int._
 import cats.instances.list._
-import com.riemers.aoc.common.putStrLn
+import cats.instances.option._
+import com.riemers.aoc.common.console
 import com.riemers.aoc.day4.Part1.readFileFromResource
 import monix.eval.{Task, TaskApp}
 
@@ -15,11 +17,12 @@ object Part2 extends TaskApp {
     sorted = records.sortBy(_.date)
     map ← Task.fromEval(countMinutesAsleep(sorted))
     l = func(map)
-    _ ← putStrLn(l)
+    _ ← console.putStrLn(l)
   } yield ExitCode.Success
 
-  def func(map: Map[(Int, Int), Int]): Int = {
-    val (guard, minute) = map.maxBy(_._2)._1
-    guard * minute
-  }
+  def func(map: Map[(Int, Int), Int]): Option[Int] = for {
+    ((guard, minute), _) ← map.reduceLeftOption[((Int, Int), Int)] {
+      case (a@(_, x), b@(_, y)) ⇒ if (x >= y) a else b
+    }
+  } yield guard * minute
 }

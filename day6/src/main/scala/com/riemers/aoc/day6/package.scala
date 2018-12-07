@@ -6,7 +6,7 @@ import cats.syntax.functorFilter._
 import com.riemers.aoc.common.ZipWithIndex
 import com.riemers.aoc.common.ZipWithIndex.ops._
 
-import scala.language.postfixOps
+import scala.language.{higherKinds, postfixOps}
 import scala.util.Try
 
 package object day6 {

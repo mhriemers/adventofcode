@@ -2,10 +2,11 @@ package com.riemers.aoc.day5
 
 import cats.effect.ExitCode
 import cats.instances.int._
+import cats.instances.option._
 import cats.syntax.functor._
 import cats.syntax.functorFilter._
 import cats.{Functor, FunctorFilter}
-import com.riemers.aoc.common.{FromRange, ObservableHelpers, putStrLn}
+import com.riemers.aoc.common.{FromRange, ObservableHelpers, console}
 import monix.eval.{Task, TaskApp}
 import monix.reactive.Observable
 
@@ -21,7 +22,7 @@ object Part2 extends TaskApp with ObservableHelpers {
       .mapEvalF(collapse)
       .map(_.length)
       .minL
-      .flatMap(putStrLn[Task])
+      .flatMap(console.putStrLn)
       .map(_ ⇒ ExitCode.Success)
 
   def permutations[F[_] : Functor : FunctorFilter](chars: F[Char])(implicit R: FromRange[F]): F[F[Char]] = {

@@ -9,9 +9,11 @@ class packageTest extends FunSuite with Matchers {
   }
 
   test("it should handle the basic test case") {
-    collapse("dabAcCaCBAcCcaDA".toCharArray.toList).value shouldBe "dabCBAcaDA"
-    collapse("dabAaCBAcCcaDA".toCharArray.toList).value shouldBe "dabCBAcaDA"
-    collapse("dabCBAcCcaDA".toCharArray.toList).value shouldBe "dabCBAcaDA"
+    List("dabAcCaCBAcCcaDA", "dabAaCBAcCcaDA", "dabCBAcCcaDA")
+      .map(_.toList)
+      .map(collapse)
+      .map(_.value)
+      .foreach(_ shouldBe "dabCBAcaDA".toList)
   }
 
 }

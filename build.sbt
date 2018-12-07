@@ -12,11 +12,12 @@ lazy val commonSettings = Seq(
     "org.scalatest" %% "scalatest" % "3.0.5" % "test"
   ),
   addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.9.8"),
-  addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
+  addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full),
+//  wartremoverErrors ++= Warts.unsafe
 )
 
 lazy val adventofcode = (project in file("."))
-  .aggregate(common, day1, day2, day3, day4, day5, day6)
+  .aggregate(common, day1, day2, day3, day4, day5, day6, day7)
 
 lazy val common = (project in file("common"))
   .settings(commonSettings)
@@ -42,5 +43,9 @@ lazy val day5 = (project in file("day5"))
   .dependsOn(common)
 
 lazy val day6 = (project in file("day6"))
+  .settings(commonSettings)
+  .dependsOn(common)
+
+lazy val day7 = (project in file("day7"))
   .settings(commonSettings)
   .dependsOn(common)

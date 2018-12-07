@@ -6,6 +6,7 @@ import cats.effect.ExitCode
 import cats.instances.int._
 import cats.instances.list._
 import cats.instances.option._
+import cats.kernel.Order
 import cats.syntax.functor._
 import cats.syntax.functorFilter._
 import com.riemers.aoc.common._
@@ -21,10 +22,10 @@ object Part1 extends TaskApp with ObservableHelpers {
   override def run(args: List[String]): Task[ExitCode] = for {
     points ← parseF(readFileFromResource("input.txt")).toListL
     result = func(Nel.fromListUnsafe(points))
-    _ ← putStrLn(result)
+    _ ← console.putStrLn(result)
   } yield ExitCode.Success
 
-  def func(points: Nel[Point]): Long = {
+  def func(points: Nel[Point]): Option[Int] = {
     val (xmin, xmax, ymin, ymax) = findExtremes(points)
     val coords = generateCoordinates(xmin, xmax, ymin, ymax)
 
@@ -43,7 +44,7 @@ object Part1 extends TaskApp with ObservableHelpers {
     states.mapFilter {
       case (_, i) ⇒ Alternative[Option].guard(!filters.contains(i)).as(i)
       case _ ⇒ None
-    }.groupBy(identity).values.map(_.length).max
+    }.groupBy(identity).values.map(_.length).reduceLeftOption(Order[Int].max)
   }
 
 }
