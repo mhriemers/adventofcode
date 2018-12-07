@@ -27,11 +27,7 @@ object Part2 extends TaskApp with ObservableHelpers {
 
           val neew = (solving ++ times.sortBy(_._1).take(concurrent - solving.length)).sortBy(_._1)
           neew match {
-            case Nil ⇒
-              println("lower")
-              println(steps)
-              println(solving)
-              time
+            case Nil ⇒ time
             case (t, c) :: tail ⇒
               val tuples = list.filter {
                 case (c1, _) ⇒ c1 != c
