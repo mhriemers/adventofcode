@@ -16,7 +16,7 @@ lazy val commonSettings = Seq(
 )
 
 lazy val adventofcode = (project in file("."))
-  .aggregate(common, day1, day2)
+  .aggregate(common, day1, day2, day3, day4, day5, day6)
 
 lazy val common = (project in file("common"))
   .settings(commonSettings)
@@ -38,5 +38,9 @@ lazy val day4 = (project in file("day4"))
   .dependsOn(common)
 
 lazy val day5 = (project in file("day5"))
+  .settings(commonSettings)
+  .dependsOn(common)
+
+lazy val day6 = (project in file("day6"))
   .settings(commonSettings)
   .dependsOn(common)
